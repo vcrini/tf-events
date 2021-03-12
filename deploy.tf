@@ -24,7 +24,7 @@ resource "aws_cloudwatch_event_rule" "commit" {
 }
 PATTERN
   name          = "${var.prefix}-events"
-  tags          = var.tags
+  tags          = var.tag
 }
 
 #resource "aws_sns_topic" "commit" {
