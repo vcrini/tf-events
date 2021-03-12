@@ -27,84 +27,78 @@ PATTERN
   tags          = var.tag
 }
 
-#resource "aws_sns_topic" "commit" {
-#  name = "${prefix}-commit"
-#  tags = var.tag
-#}
-#resource "aws_cloudwatch_event_target" "deploy" {
-#  arn  = aws_sns_topic.container_status.arn
-#  rule = aws_cloudwatch_event_rule.commit.name
-#
-#}
+resource "aws_sns_topic" "commit" {
+  name = "${var.prefix}-commit"
+  tags = var.tag
+}
 resource "aws_cloudwatch_event_target" "deploy" {
-  #arn  = aws_sns_topic.container_status.arn
-  arn  = aws_lambda_function.lambda_container_status.arn
+  arn  = aws_sns_topic.commit.arn
   rule = aws_cloudwatch_event_rule.commit.name
 
 }
-#resource "aws_sns_topic_policy" "container_status_policy" {
-#  arn = aws_sns_topic.container_status.arn
-#
-#  policy = data.aws_iam_policy_document.sns_topic_access_policy.json
-#}
+resource "aws_sns_topic_policy" "container_status_policy" {
+  arn = aws_sns_topic.commit.arn
 
-#data "aws_iam_policy_document" "sns_topic_access_policy" {
-#  policy_id = "__default_policy_ID"
-#
-#  statement {
-#    actions = [
-#      "SNS:GetTopicAttributes",
-#      "SNS:SetTopicAttributes",
-#      "SNS:AddPermission",
-#      "SNS:RemovePermission",
-#      "SNS:DeleteTopic",
-#      "SNS:Subscribe",
-#      "SNS:ListSubscriptionsByTopic",
-#      "SNS:Publish",
-#      "SNS:Receive"
-#    ]
-#
-#    condition {
-#      test     = "StringEquals"
-#      variable = "AWS:SourceOwner"
-#
-#      values = [
-#        local.account_id,
-#      ]
-#    }
-#
-#    effect = "Allow"
-#
-#    principals {
-#      type        = "AWS"
-#      identifiers = ["*"]
-#    }
-#
-#    resources = [
-#      aws_sns_topic.container_status.arn,
-#
-#    ]
-#
-#    sid = "__default_statement_ID"
-#  }
-#  statement {
-#    actions = [
-#      "sns:Publish",
-#    ]
-#    effect = "Allow"
-#
-#    principals {
-#      type        = "Service"
-#      identifiers = ["events.amazonaws.com"]
-#    }
-#
-#    resources = [
-#      aws_sns_topic.container_status.arn,
-#
-#    ]
-#  }
-#}
-resource "aws_lambda_function" "lambda_container_status" {
+  policy = data.aws_iam_policy_document.sns_topic_access_policy.json
+}
+
+data "aws_iam_policy_document" "sns_topic_access_policy" {
+  policy_id = "__default_policy_ID"
+
+  statement {
+    actions = [
+      "SNS:GetTopicAttributes",
+      "SNS:SetTopicAttributes",
+      "SNS:AddPermission",
+      "SNS:RemovePermission",
+      "SNS:DeleteTopic",
+      "SNS:Subscribe",
+      "SNS:ListSubscriptionsByTopic",
+      "SNS:Publish",
+      "SNS:Receive"
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceOwner"
+
+      values = [
+        local.account_id,
+      ]
+    }
+
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    resources = [
+      aws_sns_topic.commit.arn,
+
+    ]
+
+    sid = "__default_statement_ID"
+  }
+  statement {
+    actions = [
+      "sns:Publish",
+    ]
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    resources = [
+      aws_sns_topic.commit.arn,
+
+    ]
+  }
+}
+resource "aws_lambda_function" "lambda_commit" {
   filename      = "function.zip"
   function_name = "${var.prefix}-function-name"
   role          = local.role_arn_lambda
@@ -131,21 +125,21 @@ resource "aws_lambda_function" "lambda_container_status" {
   tags = var.tag
 }
 
-#resource "aws_sns_topic_subscription" "send_container_status" {
-#  topic_arn = aws_sns_topic.container_status.arn
-#  protocol  = "lambda"
-#  endpoint  = aws_lambda_function.lambda_container_status.arn
-#}
+resource "aws_sns_topic_subscription" "send_container_status" {
+  topic_arn = aws_sns_topic.commit.arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.lambda_commit.arn
+}
 resource "aws_cloudwatch_log_group" "lambda" {
-  name              = "/aws/lambda/${aws_lambda_function.lambda_container_status.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.lambda_commit.function_name}"
   retention_in_days = var.retention_in_days
   tags              = var.tag
 }
 
-#resource "aws_lambda_permission" "with_sns" {
-#  statement_id  = "AllowExecutionFromSNS"
-#  action        = "lambda:InvokeFunction"
-#  function_name = aws_lambda_function.lambda_container_status.function_name
-#  principal     = "sns.amazonaws.com"
-#  source_arn    = aws_sns_topic.container_status.arn
-#}
+resource "aws_lambda_permission" "with_sns" {
+  statement_id  = "AllowExecutionFromSNS"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_commit.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.commit.arn
+}
