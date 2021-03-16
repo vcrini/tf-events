@@ -100,7 +100,7 @@ data "aws_iam_policy_document" "sns_topic_access_policy" {
 }
 resource "aws_lambda_function" "lambda_commit" {
   filename      = "function.zip"
-  function_name = "${var.prefix}-function-name"
+  function_name = "${var.prefix}-pipeline-launcher"
   role          = local.role_arn_lambda
   handler       = "lambda_function.handler"
 
