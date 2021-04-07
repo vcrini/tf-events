@@ -1,24 +1,12 @@
 data "aws_caller_identity" "current" {}
-#variable "es_alias" {
-#  description = "es alias  where storing ingestion"
-#  type        = string
-#}
-#variable "es_cluster" {
-#  description = "es cluster to whitelist for notifies"
-#  type        = string
-#}
-#variable "es_host" {
-#  description = "ES host used to ingest data"
-#  type        = string
-#}
-#variable "es_secret" {
-#  description = "ssm parameter to retrieve user password"
-#  type        = string
-#}
-#variable "es_user" {
-#  description = "user used to login to ES server"
-#  type        = string
-#}
+variable "cluster_dev" {
+  description = "environment variable needed to Lambda for deploying in dev cluster"
+  type        = string
+}
+variable "cluster_prod" {
+  description = "environment variable needed to Lambda for deploying in prod cluster"
+  type        = string
+}
 variable "prefix" {
   description = "some to differentiate, usually project 'fdh' or 'dpl'"
   type = string
@@ -37,6 +25,10 @@ variable "role_arn_lambda_name" {
   type        = string
 }
 
+variable "test_role_arn" {
+  description = "role needed from lambda to assume in order to access to test environment from production"
+  type        = string
+}
 variable "tag" {
   default = {
   }

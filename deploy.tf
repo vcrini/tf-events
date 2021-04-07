@@ -113,12 +113,9 @@ resource "aws_lambda_function" "lambda_commit" {
 
   environment {
     variables = {
-      dummy = "dummy"
-      #es_alias   = var.es_alias
-      #es_cluster = var.es_cluster
-      #es_host    = var.es_host
-      #es_secret  = var.es_secret
-      #es_user    = var.es_user
+      cluster_dev   = var.cluster_dev
+      cluster_prod   = var.cluster_prod
+      test_role_arn = var.test_role_arn
 
     }
   }
