@@ -51,8 +51,8 @@ def handler(event, context):
 def no_event(branch, is_specific_version_deploy, repo, project, client_cc, repo_arn):
     print("doing new deploy")
     print("deploing in {}".format(branch))
+    sts_connection = boto3.client('sts')
     if branch == 'develop':
-        sts_connection = boto3.client('sts')
         test_account = sts_connection.assume_role(
             RoleArn=test_role_arn, RoleSessionName="cross_acct_lambda")
 
@@ -71,8 +71,10 @@ def no_event(branch, is_specific_version_deploy, repo, project, client_cc, repo_
             response = build_n_deploy(test_client, repo)
         print(response)
     elif branch == 'master':
-        prod_pipeline = boto3.client('codepipeline')
-        response = build_n_deploy(prod_pipeline, repo_arn)
+        if is_specific_version_deploy:
+            response = deploy(repo, project, branch, boto3.client('ecs'), client_cc)
+        else:
+            response = build_n_deploy(boto3.client('codepipeline'), repo)
         print(response)
     else:
         print("???")
@@ -109,7 +111,7 @@ def deploy(repo, project, branch, client, client_cc):
             taskDefinition=task_definition, include=[
                 'TAGS',
             ])
-        print(json.dumps(describe))
+        print(describe)
         found = True if tag_value in [
             a['value'] for a in describe['tags']] else False
         if found:
