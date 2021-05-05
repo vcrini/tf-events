@@ -9,7 +9,7 @@ variable "cluster_prod" {
 }
 variable "prefix" {
   description = "some to differentiate, usually project 'fdh' or 'dpl'"
-  type = string
+  type        = string
 }
 variable "retention_in_days" {
   default     = 30

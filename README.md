@@ -2,7 +2,7 @@
 
 | Name | Version |
 |------|---------|
-| terraform | ~> 0.13.4 |
+| terraform | >= 0.15.0, < 0.16.0 |
 | aws | ~> 3.9.0 |
 
 ## Providers
@@ -15,18 +15,19 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| es\_alias | es alias  where storing ingestion | `string` | n/a | yes |
-| es\_cluster | es cluster to whitelist for notifies | `string` | n/a | yes |
-| es\_host | ES host used to ingest data | `string` | n/a | yes |
-| es\_secret | ssm parameter to retrieve user password | `string` | n/a | yes |
-| es\_user | user used to login to ES server | `string` | n/a | yes |
+| cluster\_dev | environment variable needed to Lambda for deploying in dev cluster | `string` | n/a | yes |
+| cluster\_prod | environment variable needed to Lambda for deploying in prod cluster | `string` | n/a | yes |
+| prefix | some to differentiate, usually project 'fdh' or 'dpl' | `string` | n/a | yes |
 | retention\_in\_days | how many days wait before deleting logs | `number` | `30` | no |
 | role\_arn | assumed to create infrastructure in enviroment where .hcl is ran | `string` | n/a | yes |
 | role\_arn\_lambda\_name | role used by lambda | `string` | n/a | yes |
-| tag | tag to be added | `map` | <pre>{<br>  "Project": "FactoryDataHub"<br>}</pre> | no |
+| tag | tag to be added | `map` | `{}` | no |
+| test\_role\_arn | role needed from lambda to assume in order to access to test environment from production | `string` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| role\_arn | default role |
 | role\_arn\_lambda | default role |
+

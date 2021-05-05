@@ -103,7 +103,7 @@ resource "aws_lambda_function" "lambda_commit" {
   environment {
     variables = {
       cluster_dev   = var.cluster_dev
-      cluster_prod   = var.cluster_prod
+      cluster_prod  = var.cluster_prod
       test_role_arn = var.test_role_arn
 
     }
@@ -114,10 +114,10 @@ resource "aws_lambda_function" "lambda_commit" {
   handler       = "lambda_function.handler"
   # 0 disables
   reserved_concurrent_executions = 1
-  role          = local.role_arn_lambda
-  runtime = "python3.8"
-  source_code_hash = filebase64sha256("function.zip")
-  tags = var.tag
+  role                           = local.role_arn_lambda
+  runtime                        = "python3.8"
+  source_code_hash               = filebase64sha256("function.zip")
+  tags                           = var.tag
 }
 
 resource "aws_sns_topic_subscription" "send_container_status" {
@@ -140,10 +140,10 @@ resource "aws_lambda_permission" "with_sns" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_error" {
-  alarm_name                = "${var.prefix}-events-error"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "Errors"
+  alarm_name          = "${var.prefix}-events-error"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "Errors"
   # metric_name               = "Invocations"
   namespace                 = "AWS/Lambda"
   period                    = "60"
@@ -155,7 +155,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error" {
   dimensions = {
     FunctionName = aws_lambda_function.lambda_commit.function_name
   }
-   alarm_actions = [aws_sns_topic.lambda_error.arn]
+  alarm_actions = [aws_sns_topic.lambda_error.arn]
 }
 resource "aws_sns_topic" "lambda_error" {
   name = "${var.prefix}-events-error"
@@ -226,7 +226,7 @@ data "aws_iam_policy_document" "sns_lambda_error_access_policy" {
   policy_id = "__default_policy_ID"
 
   statement {
-    sid="Allow_Publish_Alarms"
+    sid    = "Allow_Publish_Alarms"
     effect = "Allow"
     principals {
       type        = "Service"
@@ -253,10 +253,10 @@ resource "aws_lambda_function" "error_parser" {
   handler       = "lambda_function.handler"
   # 0 disables
   reserved_concurrent_executions = 1
-  role          = local.role_arn_lambda
-  runtime = "python3.8"
-  source_code_hash = filebase64sha256("error_parser.zip")
-  tags = var.tag
+  role                           = local.role_arn_lambda
+  runtime                        = "python3.8"
+  source_code_hash               = filebase64sha256("error_parser.zip")
+  tags                           = var.tag
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "error_parser_logfilter" {
