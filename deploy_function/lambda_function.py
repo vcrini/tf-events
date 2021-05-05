@@ -66,13 +66,15 @@ def no_event(branch, is_specific_version_deploy, repo, project, client_cc, repo_
             aws_session_token=SESSION_TOKEN,
         )
         if is_specific_version_deploy:
-            response = deploy(repo, project, branch, test_client, client_cc)
+            response = deploy(repo, project, branch,
+                              test_client, client_cc)
         else:
             response = build_n_deploy(test_client, repo)
         print(response)
     elif branch == 'master':
         if is_specific_version_deploy:
-            response = deploy(repo, project, branch, boto3.client('ecs'), client_cc)
+            response = deploy(repo, project, branch,
+                              boto3.client('ecs'), client_cc)
         else:
             response = build_n_deploy(boto3.client('codepipeline'), repo)
         print(response)
@@ -99,7 +101,7 @@ def deploy(repo, project, branch, client, client_cc):
     )
     print(json.dumps(response))
     image_definition_byte = client_cc.get_file(
-        repositoryName=repo, filePath='imagedefinitions.json')['fileContent']
+        repositoryName=repo, filePath='imagedefinitions.json', commitSpecifier=branch)['fileContent']
     print(json.loads(image_definition_byte))
     image_definitions = json.loads(image_definition_byte)
     tag_value = [x['imageUri']
@@ -126,4 +128,5 @@ def deploy(repo, project, branch, client, client_cc):
             break
         print("skipping {} because {} was not found".format(
             task_definition, tag_value))
-    return "{} never found in any task definition"
+    # why this is not displayed?
+    return "[ERROR] {} never found in any task definition".format(tag_value)
