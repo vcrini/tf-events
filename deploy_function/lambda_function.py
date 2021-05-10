@@ -9,10 +9,13 @@ cluster_dev = os.getenv('cluster_dev')
 cluster_prod = os.getenv('cluster_prod')
 test_role_arn = os.getenv('test_role_arn')
 prefix = os.getenv('prefix')
-client_request_token = "{}-{}".format(prefix, str(uuid.uuid4()))
 cluster = {
     'develop': cluster_dev, 'master': cluster_prod}
 client_type = {False: 'codepipeline', True: 'ecs'}
+
+
+def get_token():
+    return "{}-{}".format(prefix, str(uuid.uuid4()))
 
 
 def handler(event, context):
@@ -86,7 +89,7 @@ def no_event(branch, is_specific_version_deploy, repo, project, client_cc, repo_
 def build_n_deploy(client, repo):
     response = client.start_pipeline_execution(
         name=repo,
-        clientRequestToken=client_request_token
+        clientRequestToken=get_token()
     )
     return response
 
