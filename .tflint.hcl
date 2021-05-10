@@ -1,7 +1,11 @@
 config {
   module     = true
-  deep_check = true
   force      = false
+}
+
+plugin "aws" {
+  enabled = true
+  deep_check = true
 }
 
 rule "terraform_naming_convention" {

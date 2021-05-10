@@ -21,7 +21,7 @@
 | retention\_in\_days | how many days wait before deleting logs | `number` | `30` | no |
 | role\_arn | assumed to create infrastructure in enviroment where .hcl is ran | `string` | n/a | yes |
 | role\_arn\_lambda\_name | role used by lambda | `string` | n/a | yes |
-| tag | tag to be added | `map` | `{}` | no |
+| tag | tag to be added | `map(any)` | `{}` | no |
 | test\_role\_arn | role needed from lambda to assume in order to access to test environment from production | `string` | n/a | yes |
 
 ## Outputs

@@ -24,7 +24,6 @@ variable "role_arn_lambda_name" {
   description = "role used by lambda"
   type        = string
 }
-
 variable "test_role_arn" {
   description = "role needed from lambda to assume in order to access to test environment from production"
   type        = string
@@ -33,7 +32,7 @@ variable "tag" {
   default = {
   }
   description = "tag to be added"
-  type        = map
+  type        = map(any)
 }
 locals {
   account_id      = data.aws_caller_identity.current.account_id
