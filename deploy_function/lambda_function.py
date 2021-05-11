@@ -12,6 +12,7 @@ prefix = os.getenv('prefix')
 cluster = {
     'develop': cluster_dev, 'master': cluster_prod}
 client_type = {False: 'codepipeline', True: 'ecs'}
+message_id_cache = {}
 
 
 def get_token():
@@ -23,6 +24,14 @@ def handler(event, context):
     common = event['Records'][0]['Sns']
     timestamp = datetime.datetime.strptime(
         common['Timestamp'], '%Y-%m-%dT%H:%M:%S.%fZ').isoformat()
+    message_id = common['MessageId']
+    # avoid processing duplicated request (sns can send duplicated https://cloudonaut.io/your-lambda-function-might-execute-twice-deal-with-it/)
+    # global variables in python are maintained between invocations if lambda is not recreated by AWS (so it's not accurately unique)
+    if message_id_cache.get(message_id, None):
+        print("event with MessageId: {} already processed".format(message_id))
+        return
+    else:
+        message_id_cache[message_id] = '1'
     m = json.loads(common['Message'])
     branch = m["detail"]["referenceName"]
     repo = m["detail"]["repositoryName"]
@@ -30,13 +39,10 @@ def handler(event, context):
     contains_deploy = re.search("-deploy$", repo)
     is_specific_version_deploy = True if contains_deploy else False
     repo_arn = m["resources"][0]
-    print("repo: {}({})\nbranch: {} \nat {}".format(
-        repo, repo_arn, branch, timestamp))
-    client_sts = boto3.client('sts')
-    print("details user: {}".format(client_sts.get_caller_identity()))
+    print("repo: {}\nbranch: {} at {}".format(
+        repo, branch, timestamp))
     client_cc = boto3.client('codecommit')
     tags = client_cc.list_tags_for_resource(resourceArn=repo_arn)
-    print("tags: {}".format(tags))
     deploy_version = tags['tags'].get('deploy_version', None)
     no_event_deploy = True if deploy_version is not None else False
     print("current deploy version: {} (is new deploy? {})".format(
@@ -45,15 +51,15 @@ def handler(event, context):
         no_event(branch, is_specific_version_deploy,
                  repo, project, client_cc, repo_arn)
     else:
-        print("doing old deploy, skipping")
+        print("type: old deploy, skipping")
         # skipping
 
     return event
 
 
 def no_event(branch, is_specific_version_deploy, repo, project, client_cc, repo_arn):
-    print("doing new deploy")
-    print("deploing in {}".format(branch))
+    print("type: new deploy")
+    print("deploying on: {}".format(branch))
     sts_connection = boto3.client('sts')
     if branch == 'develop':
         test_account = sts_connection.assume_role(
