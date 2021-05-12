@@ -265,7 +265,7 @@ resource "aws_cloudwatch_log_subscription_filter" "error_parser_logfilter" {
   filter_pattern  = "ERROR"
   destination_arn = aws_lambda_function.error_parser.arn
   depends_on = [
-    aws_lambda_function.lambda_commit
+    aws_lambda_permission.allow_cloudwatch_for_error_parser
   ]
 }
 
@@ -273,5 +273,5 @@ resource "aws_lambda_permission" "allow_cloudwatch_for_error_parser" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.error_parser.function_name
-  principal     = "sns.amazonaws.com"
+  principal     = "logs.${local.region}.amazonaws.com"
 }

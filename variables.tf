@@ -1,4 +1,6 @@
 data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 variable "cluster_dev" {
   description = "environment variable needed to Lambda for deploying in dev cluster"
   type        = string
@@ -35,6 +37,7 @@ variable "tag" {
   type        = map(any)
 }
 locals {
+  region          = data.aws_region.current.name
   account_id      = data.aws_caller_identity.current.account_id
   role_prefix     = "arn:aws:iam::${local.account_id}:role/"
   role_arn_lambda = "${local.role_prefix}${var.role_arn_lambda_name}"
