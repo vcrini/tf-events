@@ -9,6 +9,10 @@ variable "cluster_prod" {
   description = "environment variable needed to Lambda for deploying in prod cluster"
   type        = string
 }
+variable "deploy_environment" {
+  description = "is environment test or prod"
+  type        = string
+}
 variable "prefix" {
   description = "some to differentiate, usually project 'fdh' or 'dpl'"
   type        = string

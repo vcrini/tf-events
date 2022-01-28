@@ -23,12 +23,12 @@ resource "aws_cloudwatch_event_rule" "commit" {
   }
 }
 PATTERN
-  name          = "${var.prefix}-events"
+  name          = "${var.prefix}-${var.deploy_environment}-events"
   tags          = var.tag
 }
 
 resource "aws_sns_topic" "commit" {
-  name = "${var.prefix}-commit"
+  name = "${var.prefix}-${var.deploy_environment}-commit"
   tags = var.tag
 }
 resource "aws_cloudwatch_event_target" "deploy" {
@@ -110,7 +110,7 @@ resource "aws_lambda_function" "lambda_commit" {
   }
 
   filename      = "function.zip"
-  function_name = "${var.prefix}-pipeline-launcher"
+  function_name = "${var.prefix}-${var.deploy_environment}-pipeline-launcher"
   handler       = "lambda_function.handler"
   # 0 disables
   reserved_concurrent_executions = 1
@@ -249,7 +249,7 @@ resource "aws_lambda_function" "error_parser" {
     }
   }
   filename      = "error_parser.zip"
-  function_name = "${var.prefix}-deploy-error-parser"
+  function_name = "${var.prefix}-${var.deploy_environment}-deploy-error-parser"
   handler       = "lambda_function.handler"
   # 0 disables
   reserved_concurrent_executions = 1
@@ -260,7 +260,7 @@ resource "aws_lambda_function" "error_parser" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "error_parser_logfilter" {
-  name            = "${var.prefix}-error-parser-logfilter"
+  name            = "${var.prefix}-${var.deploy_environment}-error-parser-logfilter"
   log_group_name  = "/aws/lambda/${aws_lambda_function.lambda_commit.function_name}"
   filter_pattern  = "ERROR"
   destination_arn = aws_lambda_function.error_parser.arn

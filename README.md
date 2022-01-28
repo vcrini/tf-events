@@ -44,6 +44,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_cluster_dev"></a> [cluster\_dev](#input\_cluster\_dev) | environment variable needed to Lambda for deploying in dev cluster | `string` | n/a | yes |
 | <a name="input_cluster_prod"></a> [cluster\_prod](#input\_cluster\_prod) | environment variable needed to Lambda for deploying in prod cluster | `string` | n/a | yes |
+| <a name="input_deploy_environment"></a> [deploy\_environment](#input\_deploy\_environment) | is environment test or prod | `string` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | some to differentiate, usually project 'fdh' or 'dpl' | `string` | n/a | yes |
 | <a name="input_retention_in_days"></a> [retention\_in\_days](#input\_retention\_in\_days) | how many days wait before deleting logs | `number` | `30` | no |
 | <a name="input_role_arn"></a> [role\_arn](#input\_role\_arn) | assumed to create infrastructure in enviroment where .hcl is ran | `string` | n/a | yes |
